@@ -533,3 +533,13 @@ class Spark(Backend, RoundHalfToEven):
     @staticmethod
     def connect(data_directory):
         return Spark.client_testing
+
+
+class PySpark(Backend, RoundHalfToEven):
+    @staticmethod
+    def skip_if_missing_dependencies() -> None:
+        pass
+
+    @staticmethod
+    def connect(data_directory):
+        return PySpark.client_testing
