@@ -43,7 +43,7 @@ class PySparkExprTranslator:
 compiles = PySparkExprTranslator.compiles
 
 
-def compile_with_scope(t, expr, scope):
+def compile_with_scope(t, expr, scope, **kwargs):
     """Compile a expression and put the result in scope.
 
        If the expression is already in scope, return it.
@@ -53,7 +53,7 @@ def compile_with_scope(t, expr, scope):
     if op in scope:
         result = scope[op]
     else:
-        result = t.translate(expr, scope)
+        result = t.translate(expr, scope, **kwargs)
         scope[op] = result
 
     return result
@@ -76,7 +76,7 @@ def compile_selection(t, expr, scope, **kwargs):
         raise NotImplementedError(
             "predicates and sort_keys are not supported with Selection")
 
-    src_table = compile_with_scope(t, op.table, scope)
+    src_table = compile_with_scope(t, op.table, scope, **kwargs)
     col_names_in_selection_order = []
 
     for selection in op.selections:
@@ -85,7 +85,7 @@ def compile_selection(t, expr, scope, **kwargs):
         elif isinstance(selection, types.ColumnExpr):
             column_name = selection.get_name()
             col_names_in_selection_order.append(column_name)
-            column = t.translate(selection, scope=scope)
+            column = t.translate(selection, scope, **kwargs)
             src_table = src_table.withColumn(column_name, column)
 
     return src_table[col_names_in_selection_order]
@@ -94,7 +94,7 @@ def compile_selection(t, expr, scope, **kwargs):
 @compiles(ops.TableColumn)
 def compile_column(t, expr, scope, **kwargs):
     op = expr.op()
-    table = compile_with_scope(t, op.table, scope)
+    table = compile_with_scope(t, op.table, scope, **kwargs)
     return table[op.name]
 
 
