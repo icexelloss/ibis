@@ -866,6 +866,15 @@ class ExprValidator:
                 return True
 
         expr_roots = expr._root_tables()
+
+        if len(expr_roots) == 1 and isinstance(expr_roots[0], ops.Selection):
+            (expr_root,) = expr_roots
+            # if expr_root is a selection and is a children of self.roots,
+            # then this is fine
+            for root in self.roots:
+                if expr_root.is_ancestor(root):
+                    return True
+
         for root in expr_roots:
             if not self._among_roots(root):
                 return False

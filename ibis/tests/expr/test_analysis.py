@@ -294,3 +294,15 @@ def test_is_ancestor_analytic():
     ]
 
     assert not subquery.op().equals(with_analytic.op())
+
+
+def test_mutate_with_selection():
+    import ibis.expr.datatypes as dt
+    from ibis.udf.vectorized import elementwise
+
+    @elementwise(input_type=[dt.int32], output_type=dt.int32)
+    def foo(s):
+        return s + 1
+
+    t = ibis.table(ibis.schema([('col', 'int32'), ('col2', 'int32')]), 't')
+    t = t.mutate(col3=foo(t[['col', 'col2']]['col']))
